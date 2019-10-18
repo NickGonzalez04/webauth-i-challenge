@@ -33,9 +33,14 @@ router.post('/login', (req, res) => {
       .first()
       .then(user => {
         if (user && bcrypt.compareSync(password, user.password)) {
+            // Saves username into the session - server access this username 
+            req.session.username = user.username;
+
+            // Can see the session saving 
+            console.log('session', req.session);
           res.status(200).json({ message: `Welcome ${user.username}!` });
         } else {
-          res.status(401).json({ message: 'Invalid Credentials' });
+          res.status(401).json({ message: 'YOU SHALL NOT PASS' });
         }
       })
       .catch(error => {
@@ -45,11 +50,13 @@ router.post('/login', (req, res) => {
 
 
   router.get('/restricted/users', restricted, (req, res) => {
+
+    console.log('username', req.session.username);
     Users.find()
       .then(users => {
         res.json(users);
       })
-      .catch(err => res.send(err));
+      .catch(err => res.status(404).json({ message: "You shall not pass!" ,err}));
   });
 
 
